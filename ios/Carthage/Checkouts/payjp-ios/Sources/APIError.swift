@@ -22,9 +22,9 @@ public enum APIError: LocalizedError {
     case serviceError(PAYErrorResponseType)
     /// Invalid JSON object.
     case invalidJSON(Any)
-    
+
     // MARK: - LocalizedError
-    
+
     public var errorDescription: String? {
         switch self {
         case .invalidApplePayToken(_):
@@ -41,13 +41,15 @@ public enum APIError: LocalizedError {
             return "Unable parse JSON object into expected classes."
         }
     }
-    
+
     // MARK: - NSError helper
-    
+
     public func nsErrorValue()-> APINSError? {
         var userInfo = [String: Any]()
         userInfo[NSLocalizedDescriptionKey] = self.errorDescription ?? "Unknown error."
-        
+
+        userInfo[PayErrorCode] = self.payError?.code
+
         switch self {
         case .invalidApplePayToken(let token):
             userInfo[PAYErrorInvalidApplePayTokenObject] = token
@@ -81,7 +83,7 @@ public enum APIError: LocalizedError {
                               userInfo: userInfo)
         }
     }
-    
+
     /// Returns error response object if the type is `.serviceError`.
     public var payError: PAYErrorResponseType? {
         switch self {
@@ -100,7 +102,7 @@ public class APINSError: NSError {
         if domain == PAYErrorDomain && code == PAYErrorServiceError {
             return userInfo[PAYErrorServiceErrorObject] as? PAYErrorResponseType
         }
-        
+
         return nil
     }
 }

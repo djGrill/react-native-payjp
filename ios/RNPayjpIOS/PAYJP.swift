@@ -23,3 +23,4 @@ let PAYErrorInvalidResponseObject = "PAYErrorInvalidResponseObject";
 let PAYErrorInvalidResponseData = "PAYErrorInvalidResponseData";
 let PAYErrorServiceErrorObject = "PAYErrorServiceErrorObject";
 let PAYErrorInvalidJSONObject = "PAYErrorInvalidJSONObject";
+let PayErrorCode = "PayErrorCode";

@@ -36,12 +36,15 @@ RCT_EXPORT_METHOD(createToken:(NSString *)number
                     completionHandler:
      ^(NSError *error, PAYToken *token) {
          APIError *apiError = (APIError *)error;
+
          if (apiError) {
-             resolve(@"error");
+             resolve(apiError.userInfo);
          }
-         
+
          if (token != nil) {
-             resolve(token.identifer);
+             NSDictionary *tokenResponse = @{ @"token" : token.identifer };
+
+             resolve(tokenResponse);
          }
      }];
 }
