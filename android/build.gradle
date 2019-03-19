@@ -18,7 +18,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 26
         versionCode 1
-        versionName "1.0"
+        versionName '1.0'
     }
     lintOptions {
         abortOnError false
@@ -32,5 +32,5 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    implementation "jp.pay:payjp-android:0.3.0"
+    implementation 'jp.pay:payjp-android:0.3.0'
 }

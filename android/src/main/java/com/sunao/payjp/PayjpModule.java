@@ -11,6 +11,7 @@ import jp.pay.android.PayjpToken;
 import jp.pay.android.PayjpTokenConfiguration;
 import jp.pay.android.Task;
 import jp.pay.android.model.Token;
+import jp.pay.android.exception.PayjpApiException;
 
 public class PayjpModule extends ReactContextBaseJavaModule {
     private final String ERROR = "error";
@@ -43,12 +44,14 @@ public class PayjpModule extends ReactContextBaseJavaModule {
             createToken.enqueue(new Task.Callback<Token>() {
                 @Override
                 public void onSuccess(Token data) {
-                    promise.resolve(data.getId());
+                    promise.resolve(String.format("{\"token\":\"%s\"}", data.getId()));
                 }
 
                 @Override
                 public void onError(@NonNull Throwable throwable) {
-                    promise.resolve(ERROR);
+                    PayjpApiException exception = (PayjpApiException)throwable;
+
+                    promise.resolve(String.format("{\"error_code\":\"%s\"}", exception.getApiError().getType()));
                 }
             });
     }
