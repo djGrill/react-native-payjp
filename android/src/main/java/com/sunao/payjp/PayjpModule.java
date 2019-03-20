@@ -51,7 +51,7 @@ public class PayjpModule extends ReactContextBaseJavaModule {
                 public void onError(@NonNull Throwable throwable) {
                     PayjpApiException exception = (PayjpApiException)throwable;
 
-                    promise.resolve(String.format("{\"error_code\":\"%s\"}", exception.getApiError().getType()));
+                    promise.resolve(exception.getSource());
                 }
             });
     }
