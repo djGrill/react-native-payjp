@@ -19,7 +19,7 @@ public enum APIError: LocalizedError {
     /// The content of response body is not a valid JSON.
     case invalidResponseBody(Data)
     /// The error response object that is coming back from the server side.
-    case serviceError(PAYErrorResponseType)
+    case serviceError(PAYErrorResponseType, Any)
     /// Invalid JSON object.
     case invalidJSON(Any)
 
@@ -35,7 +35,7 @@ public enum APIError: LocalizedError {
             return "The response is not a HTTPURLResponse instance."
         case .invalidResponseBody(_):
             return "The response body's data is not a valid JSON object."
-        case .serviceError(let errorResponse):
+        case .serviceError(let errorResponse, _):
             return errorResponse.message
         case .invalidJSON(_):
             return "Unable parse JSON object into expected classes."
@@ -47,8 +47,6 @@ public enum APIError: LocalizedError {
     public func nsErrorValue()-> APINSError? {
         var userInfo = [String: Any]()
         userInfo[NSLocalizedDescriptionKey] = self.errorDescription ?? "Unknown error."
-
-        userInfo[PayErrorCode] = self.payError?.code
 
         switch self {
         case .invalidApplePayToken(let token):
@@ -71,13 +69,16 @@ public enum APIError: LocalizedError {
             return APINSError(domain: PAYErrorDomain,
                               code: PAYErrorInvalidResponseBody,
                               userInfo: userInfo)
-        case .serviceError(let errorResponse):
+        case .serviceError(let errorResponse, let json):
             userInfo[PAYErrorServiceErrorObject] = errorResponse
+            userInfo[PAYErrorJSONObject] = json
+
             return APINSError(domain: PAYErrorDomain,
                               code: PAYErrorServiceError,
                               userInfo: userInfo)
         case .invalidJSON(let json):
             userInfo[PAYErrorInvalidJSONObject] = json
+
             return APINSError(domain: PAYErrorDomain,
                               code: PAYErrorInvalidJSON,
                               userInfo: userInfo)
@@ -87,7 +88,7 @@ public enum APIError: LocalizedError {
     /// Returns error response object if the type is `.serviceError`.
     public var payError: PAYErrorResponseType? {
         switch self {
-        case .serviceError(let errorResponse):
+        case .serviceError(let errorResponse, _):
             return errorResponse
         default:
             return nil

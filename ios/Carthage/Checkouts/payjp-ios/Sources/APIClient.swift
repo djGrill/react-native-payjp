@@ -9,10 +9,10 @@ import PassKit
 @objc(PAYAPIClient) public class APIClient: NSObject {
     /// Able to set the locale of the error messages. We provide messages in Japanese and English. Default is nil.
     @objc public var locale: Locale?
-    
+
     private let publicKey: String
     private let baseURL: String = "https://api.pay.jp/v1"
-    
+
     private lazy var authCredential: String = {
         let credentialData = "\(self.publicKey):".data(using: .utf8)!
         let base64Credential = credentialData.base64EncodedString()
@@ -22,9 +22,9 @@ import PassKit
     @objc public init(publicKey: String) {
         self.publicKey = publicKey
     }
-    
+
     public typealias APIResponse = Result<Token, APIError>
-    
+
     private func createToken(
         with request: URLRequest,
         completionHandler: @escaping (APIResponse) -> ())
@@ -34,17 +34,17 @@ import PassKit
                 completionHandler(.failure(.systemError(e)))
                 return
             }
-            
+
             guard let response = res as? HTTPURLResponse else {
                 completionHandler(.failure(.invalidResponse(nil)))
                 return
             }
-            
+
             guard let data = data else {
                 completionHandler(.failure(.invalidResponse(response)))
                 return
             }
-            
+
             var json: Any
             do {
                 json = try JSONSerialization.jsonObject(with: data, options:.mutableContainers)
@@ -52,16 +52,16 @@ import PassKit
                 completionHandler(.failure(.invalidResponseBody(data)))
                 return
             }
-            
+
             if response.statusCode != 200 {
                 if let error = try? PAYErrorResponse.decodeValue(json, rootKeyPath: "error") {
-                    completionHandler(.failure(.serviceError(error)))
+                    completionHandler(.failure(.serviceError(error, json)))
                     return
                 } else {
                     completionHandler(.failure(.invalidJSON(json)))
                 }
             }
-            
+
             do {
                 let token = try Token.decodeValue(json)
                 completionHandler(.success(token))
@@ -69,10 +69,10 @@ import PassKit
                 completionHandler(.failure(.invalidJSON(json)))
             }
         })
-        
+
         task.resume()
     }
-    
+
     /// Create PAY.JP Token
     /// - parameter token: ApplePay Token
     public func createToken(
@@ -85,13 +85,13 @@ import PassKit
                 completionHandler(.failure(.invalidApplePayToken(token)))
                 return
         }
-        
+
         var req = URLRequest(url: url)
         req.httpMethod = "POST"
         req.httpBody = "card=\(body)".data(using: .utf8)
         req.setValue(authCredential, forHTTPHeaderField: "Authorization")
         req.setValue(locale?.languageCode, forHTTPHeaderField: "Locale")
-        
+
         createToken(with: req, completionHandler: completionHandler)
     }
 
@@ -122,7 +122,7 @@ import PassKit
         req.httpBody = formString.data(using: .utf8)
         req.setValue(authCredential, forHTTPHeaderField: "Authorization")
         req.setValue(locale?.languageCode, forHTTPHeaderField: "Locale")
-        
+
         createToken(with: req, completionHandler: completionHandler)
     }
 
@@ -137,7 +137,7 @@ import PassKit
         req.httpMethod = "GET"
         req.setValue(authCredential, forHTTPHeaderField: "Authorization")
         req.setValue(locale?.languageCode, forHTTPHeaderField: "Locale")
-        
+
         createToken(with: req, completionHandler: completionHandler)
     }
 }
@@ -147,7 +147,7 @@ extension APIClient {
     @objc public func createTokenWith(
         _ token: PKPaymentToken,
         completionHandler: @escaping (NSError?, Token?) -> ()) {
-        
+
         self.createToken(with: token) { (response) in
             switch response {
             case .success(let token):
@@ -165,7 +165,7 @@ extension APIClient {
         expirationYear: String,
         name: String?,
         completionHandler: @escaping (NSError?, Token?) -> ()) {
-        
+
         self.createToken(with: cardNumber,
                          cvc: cvc,
                          expirationMonth: expirationMonth,
@@ -184,7 +184,7 @@ extension APIClient {
     @objc public func getTokenWith(
         _ tokenId: String,
         completionHandler: @escaping (NSError?, Token?) -> ()) {
-        
+
         self.getToken(with: tokenId) { (response) in
             switch response {
             case .success(let token):

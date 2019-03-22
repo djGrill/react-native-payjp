@@ -38,7 +38,7 @@ RCT_EXPORT_METHOD(createToken:(NSString *)number
          APIError *apiError = (APIError *)error;
 
          if (apiError) {
-             resolve(apiError.userInfo);
+             resolve(apiError.userInfo[@"PAYErrorJSONObject"]);
          }
 
          if (token != nil) {
