@@ -27,7 +27,7 @@ RCT_EXPORT_METHOD(createToken:(NSString *)number
                   rejecter:(RCTPromiseRejectBlock)reject){
     NSLog(@"createToken has called!!");
     self.payjpClient = [[PAYAPIClient alloc] initWithPublicKey:mPublicKey];
-    self.payjpClient.locale = [NSLocale currentLocale];
+    self.payjpClient.locale = [NSLocale localeWithLocaleIdentifier:@"ja"];
     [self.payjpClient createTokenWith:number
                                   cvc:cvc
                       expirationMonth:expMonth
