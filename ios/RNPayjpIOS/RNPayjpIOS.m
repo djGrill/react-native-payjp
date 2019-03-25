@@ -44,7 +44,18 @@ RCT_EXPORT_METHOD(createToken:(NSString *)number
          if (token != nil) {
              NSDictionary *tokenResponse = @{ @"token" : token.identifer };
 
-             resolve(tokenResponse);
+             NSError *error;
+             NSData *jsonData = [NSJSONSerialization dataWithJSONObject:tokenResponse
+                                                                options:0
+                                                                  error:&error];
+
+             if (! jsonData) {
+                 NSLog(@"NSJSONSerialization error: %@", error);
+             } else {
+                 NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+                 resolve(jsonString);
+             }
          }
      }];
 }

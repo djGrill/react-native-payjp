@@ -71,7 +71,15 @@ public enum APIError: LocalizedError {
                               userInfo: userInfo)
         case .serviceError(let errorResponse, let json):
             userInfo[PAYErrorServiceErrorObject] = errorResponse
-            userInfo[PAYErrorJSONObject] = json
+
+            do {
+                let jsonData = try JSONSerialization.data(withJSONObject: json, options: .prettyPrinted)
+                let jsonString = String(data: jsonData, encoding: .utf8)
+
+                userInfo[PAYErrorJSONObject] = jsonString
+            } catch {
+                print(error.localizedDescription)
+            }
 
             return APINSError(domain: PAYErrorDomain,
                               code: PAYErrorServiceError,
